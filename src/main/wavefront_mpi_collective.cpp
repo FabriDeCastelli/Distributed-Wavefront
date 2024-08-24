@@ -100,17 +100,19 @@ int main(int argc, char** argv)
     for (int i = 0; i < n - 1; i++)
         matrix[n - 1] += matrix[i] * matrix[(i + 1) * n + n - 1];
 
-    const double end = MPI_Wtime();
+    const double time = (MPI_Wtime() - start_time) * 1000.0;
+
+    std::vector<double> running_times(num_processes);
+    MPI_Gather(&time, 1, MPI_DOUBLE, running_times.data(), 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
 
     if (rank == 0)
     {
-        std::string filename = "mpi_collective_" + std::to_string(n) + ".txt";
-        std::ofstream mpi_file(Config::OUTPUTS_DIRECTORY / filename);
-        print_matrix(matrix.data(), n, mpi_file);
+        std::cout << n << ";" << num_processes << ";";
+        for (int i = 0; i < num_processes - 1; ++i)
+            std::cout << running_times[i] << ",";
+        std::cout << running_times[num_processes - 1] << std::endl;
+
     }
-
-    std::cout << "Time taken for dimension " << n << ": " << end - start_time << "s" << std::endl;
-
 
     MPI_Finalize();
     return 0;

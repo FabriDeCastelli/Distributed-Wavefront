@@ -124,13 +124,13 @@ int main(int argc, char** argv) {
         return -1;
     }
     auto end = std::chrono::high_resolution_clock::now();
-    std::cout << "Elapsed time: " << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << "ms" << std::endl;
+    std::cout << n << ";" << num_workers << ";" << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << std::endl;
 
-    std::cout << "Matrix computation completed successfully." << std::endl;
+    // std::cout << "Matrix computation completed successfully." << std::endl;
 
-    std::string filename = "fastflow_" + std::to_string(n) + ".txt";
-    std::ofstream fastflow_file(Config::OUTPUTS_DIRECTORY / filename);
-    print_matrix(matrix.data(), n, fastflow_file);
+    // std::string filename = "fastflow_" + std::to_string(n) + ".txt";
+    // std::ofstream fastflow_file(Config::OUTPUTS_DIRECTORY / filename);
+    // print_matrix(matrix.data(), n, fastflow_file);
 
     return 0;
 }

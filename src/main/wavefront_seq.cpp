@@ -20,11 +20,13 @@ int main(int argc, char** argv) {
     const auto start = std::chrono::high_resolution_clock::now();
     wavefrontComputation(matrix.data(), n);
     const auto end = std::chrono::high_resolution_clock::now();
-    std::cout << "Time taken: " << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << "ms" << std::endl;
+    std::cout << n << ";" << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << std::endl;
 
-    std::string filename = "sequential_" + std::to_string(n) + ".txt";
-    std::ofstream sequential_file(Config::OUTPUTS_DIRECTORY / filename);
-    print_matrix(matrix.data(), n, sequential_file);
+
+    // std::string filename = "sequential_" + std::to_string(n) + ".txt";
+    // std::ofstream sequential_file(Config::OUTPUTS_DIRECTORY / filename);
+    // print_matrix(matrix.data(), n, sequential_file);
+
 
     return 0;
 }
