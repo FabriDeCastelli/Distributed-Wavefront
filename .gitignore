@@ -33,3 +33,6 @@
 
 ./.idea
 ./.vscode
+
+/cmake-build-release-numa/
+/cmake-build-release-spm/
