@@ -33,14 +33,19 @@ std::vector<std::vector<double>> matrix_from_file(const std::string& filename, i
 }
 
 // Function to compare two matrices
-bool compareMatrices(const std::vector<std::vector<double>>& matrix1, const std::vector<std::vector<double>>& matrix2) {
+bool compareMatrices(
+    const std::vector<std::vector<double>>& matrix1,
+    const std::vector<std::vector<double>>& matrix2,
+    const std::vector<std::vector<double>>& matrix3
+    ) {
     const int n = matrix1.size();
     if (matrix2.size() != n) return false;
 
     for (int i = 0; i < n; ++i) {
         if (matrix2[i].size() != n) return false;
         for (int j = 0; j < n; ++j) {
-            if (matrix1[i][j] != matrix2[i][j]) return false;
+            if (matrix1[i][j] != matrix2[i][j] || matrix1[i][j] != matrix3[i][j])
+                return false;
         }
     }
     return true;
@@ -57,18 +62,20 @@ int main(int argc, char** argv) {
 
     const std::string seq_filename = "sequential_" + std::to_string(n) + ".txt";
     const std::string mpi_filename = "mpi_collective_" + std::to_string(n) + ".txt";
+    const std::string fastflow_filename = "fastflow_" + std::to_string(n) + ".txt";
 
     try {
-        int n1, n2;
+        int n1, n2, n3;
         const std::vector<std::vector<double>> sequential = matrix_from_file(seq_filename, n1);
         const std::vector<std::vector<double>> mpi = matrix_from_file(mpi_filename, n2);
+        const std::vector<std::vector<double>> fastflow = matrix_from_file(fastflow_filename, n3);
 
-        if (n1 != n2) {
+        if (n1 != n2 || n2 != n3 || n1 != n3) {
             std::cerr << "Matrices are of different sizes." << std::endl;
             return 1;
         }
 
-        if (compareMatrices(sequential, mpi)) {
+        if (compareMatrices(sequential, mpi, fastflow)) {
             std::cout << "The matrices are equal." << std::endl;
         } else {
             std::cout << "The matrices are not equal." << std::endl;
