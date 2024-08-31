@@ -14,6 +14,9 @@ sns.set_context('paper')
 output_dir = "./Sequential"
 os.makedirs(output_dir, exist_ok=True)
 
+# get the mean time for each matrix dimension
+sequential_df = sequential_df.groupby('n').mean().reset_index()
+
 plt.figure(figsize=(11, 8))
 sns.lineplot(data=sequential_df, x='n', y='time', marker='o', label='Execution time (ms)')
 plt.xlabel('Matrix dimension', fontsize=15, labelpad=20)

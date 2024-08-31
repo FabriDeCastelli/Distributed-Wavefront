@@ -18,7 +18,11 @@ make
 # shellcheck disable=SC2068
 for n in ${MATRIX_N[@]}; do
     echo "Running test for matrix size $n"
-    ./Sequential "$n" >> $OUTPUT_FILE 2>&1
+    # shellcheck disable=SC2034
+    for (( i=1; i <= 5; ++i )); do
+        output=$(srun ./Sequential "$n")
+        echo "$output" >> "$OUTPUT_FILE"
+    done
 done
 
 cat "$OUTPUT_FILE"

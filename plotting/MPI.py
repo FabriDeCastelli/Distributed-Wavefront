@@ -9,10 +9,12 @@ import pandas as pd
 mpi_df_base = utils.read_MPI()
 mpi_df = mpi_df_base[(mpi_df_base['nodes'] == 2) & (mpi_df_base['n'] == 3200)]
 sequential_df = utils.read_sequential()
+sequential_df = sequential_df.groupby('n').mean().reset_index()
 
 # Get the time for the sequential execution of n = 3200
 time_3200_sequential = sequential_df[sequential_df['n'] == 3200]['time'].values[0]
-base_mpi_time = np.mean(mpi_df[mpi_df['p'] == 2]['time'].values[0])
+base_mpi_time = np.mean(np.vstack(mpi_df[mpi_df['p'] == 2]['time'].values), axis=0)
+base_mpi_time = np.mean(base_mpi_time)
 
 # Lists for storing values
 ideal_speedup = []
@@ -27,7 +29,7 @@ for num_processes in sorted(mpi_df['p'].unique()):
     ideal_speedup.append(num_processes)
     ideal_scalability.append(num_processes)
 
-    process_times = mpi_df[mpi_df['p'] == num_processes]['time'].values[0]
+    process_times = np.mean(np.vstack(mpi_df[mpi_df['p'] == num_processes]['time'].values), axis=0)
     mean_process_time = np.mean(process_times)
     actual_speedup_value = time_3200_sequential / mean_process_time
     actual_speedup.append(actual_speedup_value)
@@ -37,18 +39,18 @@ for num_processes in sorted(mpi_df['p'].unique()):
 
 # Create DataFrames for plotting
 speedup_df = pd.DataFrame({
-    'Number of Processes': sorted(mpi_df['p'].astype(int).values),
+    'Number of Processes': sorted(mpi_df['p'].astype(int).unique()),
     'Ideal Speedup': ideal_speedup,
     'Actual Speedup': actual_speedup
 })
 
 efficiency_df = pd.DataFrame({
-    'Number of Processes': sorted(mpi_df['p'].astype(int).values),
+    'Number of Processes': sorted(mpi_df['p'].astype(int).unique()),
     'Efficiency': efficiency
 })
 
 scalability_df = pd.DataFrame({
-    'Number of Processes': sorted(mpi_df['p'].astype(int).values),
+    'Number of Processes': sorted(mpi_df['p'].astype(int).unique()),
     'Ideal Scalability': ideal_scalability,
     'Actual Scalability': actual_scalability
 })
@@ -117,12 +119,14 @@ for num_processes in processes:
     ideal_speedup.append(num_processes)
     ideal_scalability.append(num_processes)
 
-    mean_process_time = np.mean(mpi_df[(mpi_df['p'] == num_processes) & (mpi_df['n'] == problem_size)]['time'].values[0])
+    mean_process_time = np.mean(np.vstack(mpi_df[(mpi_df['p'] == num_processes) & (mpi_df['n'] == problem_size)]['time'].values), axis=0)
+    mean_process_time = np.mean(mean_process_time)
     actual_speedup_value = sequential_time / mean_process_time
     actual_speedup.append(actual_speedup_value)
     efficiency.append(actual_speedup_value / num_processes)
 
-    mpi_base_time_psize = np.mean(mpi_df[(mpi_df['p'] == 2) & (mpi_df['n'] == problem_size)]['time'].values[0])
+    mpi_base_time_psize = np.mean(np.vstack(mpi_df[(mpi_df['p'] == 2) & (mpi_df['n'] == problem_size)]['time'].values), axis=0)
+    mpi_base_time_psize = np.mean(mpi_base_time_psize)
     actual_scalability.append(mpi_base_time_psize / mean_process_time)
 
 

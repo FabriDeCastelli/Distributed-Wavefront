@@ -25,9 +25,11 @@ for nodes in ${NUM_NODES[@]}; do
             if [ "$nodes" -gt "$np" ]; then
                 continue
             fi
-            echo -n "$nodes;" >> "$OUTPUT"
             echo "Running test for matrix size $n with $np processes and $nodes nodes"
-            srun --mpi=pmix --nodes="$nodes" -n "$np" ./MPI_Collective "$n" >> $OUTPUT 2>&1
+            for (( i=1; i <= 5; ++i )); do
+                output=$(srun --mpi=pmix --nodes="$nodes" -n "$np" ./MPI_Collective "$n")
+                echo "$nodes;$output" >> "$OUTPUT"
+            done
         done
     done
 done

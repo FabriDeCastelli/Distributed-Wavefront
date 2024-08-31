@@ -17,10 +17,14 @@ cd build || exit
 make
 
 # shellcheck disable=SC2068
+
 for n in ${MATRIX_N[@]}; do
     for nw in ${NUM_WORKERS[@]}; do
         echo "Running test for matrix size $n with $nw workers"
-        srun ./Fastflow "$n" "$nw" >> $OUTPUT 2>&1
+        for (( i=1; i <= 5; ++i )); do
+            output=$(srun ./Fastflow "$n" "$nw")
+            echo "$output" >> "$OUTPUT"
+        done
     done
 done
 

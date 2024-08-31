@@ -7,8 +7,10 @@ import pandas as pd
 
 # Load and filter data
 fastflow_df_base = utils.read_fastflow()
+fastflow_df_base = fastflow_df_base.groupby(['n', 'w']).mean().reset_index()
 fastflow_df = fastflow_df_base[fastflow_df_base['n'] == 3200]
 sequential_df = utils.read_sequential()
+sequential_df = sequential_df.groupby('n').mean().reset_index()
 
 # Get the time for the sequential execution of n = 3200
 time_3200_sequential = sequential_df[sequential_df['n'] == 3200]['time'].values[0]
