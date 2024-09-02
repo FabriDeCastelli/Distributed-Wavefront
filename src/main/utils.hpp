@@ -16,21 +16,25 @@
 using MatrixElementType = double;
 
 
-
-inline MatrixElementType dotProduct(const std::vector<MatrixElementType>& v1, const std::vector<MatrixElementType>& v2) {
-    MatrixElementType result = 0.0;
-    for (size_t i = 0; i < v1.size(); ++i) {
-        result += v1[i] * v2[i];
-    }
-    return result;
-}
-
+/**
+ * Initializes the diagonal of the matrix. The diagonal elements are initialized with the value (i + 1) / n.
+ *
+ * @param matrix the pointer to the matrix, stored as a contiguous 1d vector of dimension n x n
+ * @param n the size of the matrix
+ */
 inline void initialize_diagonal(MatrixElementType* matrix, const size_t n) {
     for (size_t i = 0; i < n; ++i) {
         matrix[i * n + i] = static_cast<MatrixElementType> (i + 1) / static_cast<MatrixElementType> (n);
     }
 }
 
+/**
+ * Prints the matrix to an output stream.
+ *
+ * @param matrix the input matrix pointer
+ * @param n the size of the matrix
+ * @param file the output file stream
+ */
 inline void print_matrix(const MatrixElementType* matrix, const size_t n, std::ofstream &file) {
 
     if (!file.is_open()) {
@@ -49,6 +53,12 @@ inline void print_matrix(const MatrixElementType* matrix, const size_t n, std::o
     }
 }
 
+/**
+ * Performs the Wavefront computation pattern sequentially.
+ *
+ * @param matrix a contiguous n x n pointer, assuming row-major order and initialized with the diagonal values
+ * @param n the size of the matrix
+ */
 inline void wavefrontComputation(MatrixElementType* matrix, const size_t n) {
 
     for (size_t k = 1; k < n; ++k) {
