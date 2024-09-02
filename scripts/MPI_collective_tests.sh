@@ -34,5 +34,4 @@ for nodes in ${NUM_NODES[@]}; do
     done
 done
 
-
 echo "MPI test finished"

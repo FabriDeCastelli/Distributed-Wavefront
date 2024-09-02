@@ -16,6 +16,7 @@ int main(int argc, char** argv) {
 
     const size_t n = std::stoul(argv[1]);
     std::vector matrix(n*n, 0.0);
+    initialize_diagonal(matrix.data(), n);
 
     const auto start = std::chrono::high_resolution_clock::now();
     wavefrontComputation(matrix.data(), n);
@@ -25,7 +26,6 @@ int main(int argc, char** argv) {
     // std::string filename = "sequential_" + std::to_string(n) + ".txt";
     // std::ofstream sequential_file(Config::OUTPUTS_DIRECTORY / filename);
     // print_matrix(matrix.data(), n, sequential_file);
-
 
     return 0;
 }

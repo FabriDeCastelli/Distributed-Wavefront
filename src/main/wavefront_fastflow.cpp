@@ -27,7 +27,7 @@ struct Task {
 class Emitter final : public ff_node_t<Task> {
 public:
     Emitter(MatrixElementType* matrix, const int n, const int num_workers)
-        : matrix(matrix), n(n), num_workers(num_workers), spawned(0), feedback_counter(0), k(1) {}
+        : matrix(matrix), n(n), num_workers(num_workers), spawned(0), k(1) {}
 
     Task* svc(Task* task) override {
 
@@ -71,7 +71,6 @@ private:
     int n;
     int num_workers;
     int spawned;
-    int feedback_counter;
     int k;
 };
 
@@ -118,15 +117,14 @@ int main(int argc, char** argv) {
     farm.remove_collector();
     farm.wrap_around();
 
-    auto start = std::chrono::high_resolution_clock::now();
+    const auto start = std::chrono::high_resolution_clock::now();
     if (farm.run_and_wait_end() < 0) {
         std::cerr << "Error running farm" << std::endl;
         return -1;
     }
-    auto end = std::chrono::high_resolution_clock::now();
+    const auto end = std::chrono::high_resolution_clock::now();
     std::cout << n << ";" << num_workers << ";" << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << std::endl;
 
-    // std::cout << "Matrix computation completed successfully." << std::endl;
 
     // std::string filename = "fastflow_" + std::to_string(n) + ".txt";
     // std::ofstream fastflow_file(Config::OUTPUTS_DIRECTORY / filename);

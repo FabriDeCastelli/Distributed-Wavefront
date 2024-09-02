@@ -50,7 +50,6 @@ inline void print_matrix(const MatrixElementType* matrix, const size_t n, std::o
 }
 
 inline void wavefrontComputation(MatrixElementType* matrix, const size_t n) {
-    initialize_diagonal(matrix, n);
 
     for (size_t k = 1; k < n; ++k) {
         for (size_t m = 0; m < n - k; ++m) {

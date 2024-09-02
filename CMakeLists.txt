@@ -26,7 +26,7 @@ add_executable(Sequential
         src/main/utils.hpp
         src/main/config.hpp
 )
-add_executable(MPI
+add_executable(MPI_P2P
         src/main/wavefront_mpi_p2p.cpp
         src/main/utils.hpp
         src/main/config.hpp
