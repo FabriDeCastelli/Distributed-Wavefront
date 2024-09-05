@@ -49,4 +49,5 @@ add_executable(Correctness
 )
 
 # Links the MPI libraries to the executable.
- target_link_libraries(MPI ${MPI_LIBRARIES})
+target_link_libraries(MPI_Collective ${MPI_LIBRARIES})
+target_link_libraries(MPI_P2P ${MPI_LIBRARIES})
