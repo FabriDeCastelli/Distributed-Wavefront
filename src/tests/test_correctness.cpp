@@ -52,13 +52,7 @@ bool compareMatrices(
 }
 
 int main(int argc, char** argv) {
-
-    if (argc != 2) {
-        std::cerr << "Usage: " << argv[0] << " n " << std::endl;
-        return 1;
-    }
-
-    const int n = std::stoi(argv[1]);
+    constexpr int n = 1000;
 
     const std::string seq_filename = "sequential_" + std::to_string(n) + ".txt";
     const std::string mpi_filename = "mpi_collective_" + std::to_string(n) + ".txt";
