@@ -39,7 +39,7 @@ for n in matrix_sizes:
     efficiency = []
     scalability = []
 
-    for num_processes in sorted(mpi_df['p'].unique()):
+    for num_processes in sorted(mpi_df['p'].astype(int).unique()):
         process_times = np.mean(np.vstack(mpi_df[mpi_df['p'] == num_processes]['time'].values), axis=0)
         mean_process_time = np.mean(process_times)
 
@@ -53,7 +53,7 @@ for n in matrix_sizes:
     results['scalability'][f'n={n}'] = scalability
 
 # Prepare DataFrames for plotting
-processes = sorted(mpi_df_base[mpi_df_base['nodes'] == nodes]['p'].unique())
+processes = sorted(mpi_df_base[mpi_df_base['nodes'] == nodes]['p'].astype(int).unique())
 speedup_df = pd.DataFrame({'Number of Processes': processes})
 efficiency_df = pd.DataFrame({'Number of Processes': processes})
 ideal_speedup = [p for p in processes]
@@ -65,7 +65,6 @@ for n in matrix_sizes:
     speedup_df[f'Actual Speedup {n}'] = results['speedup'][f'n={n}']
     efficiency_df[f'Efficiency {n}'] = results['efficiency'][f'n={n}']
     # scalability_df[f'Actual Scalability {n}'] = results['scalability'][f'n={n}']
-
 
 # Set up the plotting environment
 sns.set(style="whitegrid")
@@ -79,7 +78,8 @@ os.makedirs(output_dir, exist_ok=True)
 def plot_metric(df, y_label, title, filename):
     plt.figure(figsize=(11, 8))
     if title != 'Efficiency':
-        sns.lineplot(data=df, x='Number of Processes', y=f'Ideal {title}', marker='o', label='Ideal', linewidth=3, markersize=6)
+        sns.lineplot(data=df, x='Number of Processes', y=f'Ideal {title}', marker='o', label='Ideal', linewidth=3,
+                     markersize=6)
     for n in matrix_sizes:
         column_name = f'{y_label} {n}'
         if column_name in df.columns:
@@ -90,11 +90,10 @@ def plot_metric(df, y_label, title, filename):
     plt.xlabel('Number of Processes', fontsize=15, labelpad=20)
     plt.ylabel(title, fontsize=15, labelpad=20)
     plt.xticks([2 * i for i in range(12)], fontsize=15)
+    plt.yticks(fontsize=15)
     if title == 'Efficiency':
-        plt.yticks([0.1 * i for i in range(15)], fontsize=15)
+        plt.yticks([0.1 * i for i in range(14)], fontsize=15)
         plt.ylim(-0.01)
-    else:
-        plt.yticks(fontsize=15)
     plt.title(f'MPI (Strong) {title} with {nodes} nodes', fontsize=20, pad=20, fontweight='bold')
     plt.legend()
     plt.savefig(output_dir + f'/{filename}_{nodes}.png')
@@ -133,6 +132,10 @@ for node in nodes:
     mpi_df_node = mpi_df[mpi_df['nodes'] == node]
 
     for num_processes in processes:
+
+        if node > num_processes:
+            continue
+
         problem_size = num_processes * 200
         sequential_time = sequential_df[sequential_df['n'] == problem_size]['time'].values[0]
 
@@ -141,7 +144,9 @@ for node in nodes:
             ideal_scalability.append(num_processes)
 
         mean_process_time = np.mean(
-            mpi_df_node[(mpi_df_node['p'] == num_processes) & (mpi_df_node['n'] == problem_size)]['time'].values
+            np.vstack(
+                mpi_df_node[(mpi_df_node['p'] == num_processes) & (mpi_df_node['n'] == problem_size)]['time'].values),
+            axis=0
         )
         mean_process_time = np.mean(mean_process_time)
 
@@ -149,8 +154,11 @@ for node in nodes:
         actual_speedup[node].append(actual_speedup_value)
         efficiency[node].append(actual_speedup_value / num_processes)
 
+        base_num_processes = max(node, 2)
+
         mpi_base_time_psize = np.mean(
-            mpi_df_node[(mpi_df_node['p'] == 2) & (mpi_df_node['n'] == problem_size)]['time'].values
+            np.vstack(mpi_df_node[(mpi_df_node['p'] == base_num_processes) & (mpi_df_node['n'] == problem_size)][
+                          'time'].values), axis=0
         )
         mpi_base_time_psize = np.mean(mpi_base_time_psize)
 
@@ -161,14 +169,17 @@ for node in nodes:
 def plot_metric(metric_dict, ideal_metric, ylabel, title, filename):
     plt.figure(figsize=(11, 8))
     for node, values in metric_dict.items():
-        sns.lineplot(x=processes, y=values, marker='o', label=f' {node} Nodes', linewidth=3, markersize=6)
+        sns.lineplot(x=processes[-len(values):], y=values, marker='o', label=f' {node} Nodes', linewidth=3,
+                     markersize=6)
     if ideal_metric:
         sns.lineplot(x=processes, y=ideal_metric, marker='o', label='Ideal', linewidth=3, markersize=6)
     plt.xlabel('Number of Processes', fontsize=15, labelpad=20)
     plt.ylabel(ylabel, fontsize=15, labelpad=20)
     plt.xticks([2 * i for i in range(9)], fontsize=15)
-    plt.yticks(fontsize=15)
     plt.ylim(-0.01)
+    plt.yticks(fontsize=15)
+    if ylabel == 'Efficiency':
+        plt.yticks([0.1 * i for i in range(11)], fontsize=15)
     plt.title(title, fontsize=20, pad=20, fontweight='bold')
     plt.savefig(output_dir + '/' + filename)
     plt.show()

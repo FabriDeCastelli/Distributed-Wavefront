@@ -85,7 +85,7 @@ def plot_metric(df, y_label, title, output_file):
     plt.ylabel(title, fontsize=15, labelpad=20)
     plt.xticks([2*i for i in range(12)], fontsize=15)
     if title == 'Efficiency':
-        plt.yticks([0.1*i for i in range(15)], fontsize=15)
+        plt.yticks([0.1*i for i in range(12)], fontsize=15)
         plt.ylim(-0.01)
     else:
         plt.yticks(fontsize=15)

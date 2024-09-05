@@ -2,8 +2,6 @@ import os
 import utils
 import seaborn as sns
 import matplotlib.pyplot as plt
-import numpy as np
-import pandas as pd
 
 sequential_df = utils.read_sequential()
 
@@ -25,4 +23,6 @@ plt.xticks(fontsize=15)
 plt.yticks(fontsize=15)
 plt.title('Sequential Wavefront Execution Time', fontsize=20, pad=20, fontweight='bold')
 plt.savefig(output_dir + '/sequential_time.png')
-plt.show()
+# plt.show()
+
+
