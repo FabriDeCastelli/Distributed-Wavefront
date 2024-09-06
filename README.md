@@ -4,19 +4,21 @@ This project implements a distributed version of the Wavefront computation for t
 
 ## Project Overview
 
-This project builds on the Wavefront computation problem from Assignment 1. Instead of using a “wasting time” work function, we compute diagonal elements of a matrix $ M $ (size NxN, with double precision elements).
+This project builds on the Wavefront computation problem from Assignment 1. Instead of using a “wasting time” work function, we compute diagonal elements of a matrix $M$ (size $N \times N$, with double precision elements).
 
-For each diagonal element, the new distributed version computes the n-k diagonal element $ e_{m, m+k}^k $, where $ m \in [0, n-k[ $, as the result of a dot product between two vectors $ v_m^k $ and $ v_{m+k}^k $, which are composed of elements from the same row $ m $ and column $ m+k $. Specifically:
+For each diagonal element, the new distributed version computes the $n-k$ diagonal element $e_{m, m+k}^k$, where $m \in [0, n-k[$, as the result of a dot product between two vectors $v_m^k$ and $v_{m+k}^k$, which are composed of elements from the same row $m$ and column $m+k$. Specifically:
 
 $$
 e_{i,j}^k = \sqrt[3]{\langle v_m^k, v_{m+k}^k\rangle}
 $$
 
-<img alt="Distributed wavefront" src="wavefront.png"/>
+<p align="center">
+  <img alt="Distributed wavefront" src="wavefront.png" width="55%" height="auto"/>
+</p>
 
 ### Matrix Initialization
 
-- The values of the major diagonal elements $ e_{m, m}^0 $ are initialized with the formula $ \frac{m+1}{n} $.
+- The values of the major diagonal elements $e_{m, m}^0$ are initialized with the formula $\frac{m+1}{n}$.
 
 ### Tasks
 
