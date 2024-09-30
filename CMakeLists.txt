@@ -26,12 +26,6 @@ add_executable(Sequential
         src/main/utils.hpp
         src/main/config.hpp
 )
-add_executable(MPI_P2P
-        src/main/wavefront_mpi_p2p.cpp
-        src/main/utils.hpp
-        src/main/config.hpp
-        src/main/wavefront_mpi_p2p.cpp
-)
 add_executable(MPI_Collective
         src/main/wavefront_mpi_collective.cpp
         src/main/utils.hpp
@@ -42,12 +36,6 @@ add_executable(Fastflow
         src/main/utils.hpp
         src/main/config.hpp
 )
-add_executable(Correctness
-        src/tests/test_correctness.cpp
-        src/main/utils.hpp
-        src/main/config.hpp
-)
 
 # Links the MPI libraries to the executable.
 target_link_libraries(MPI_Collective ${MPI_LIBRARIES})
-target_link_libraries(MPI_P2P ${MPI_LIBRARIES})
