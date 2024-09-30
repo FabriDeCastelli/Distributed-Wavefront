@@ -4,10 +4,9 @@
 
 #include <chrono>
 #include <iostream>
-#include <vector>
 #include "utils.hpp"
 
-int main(int argc, char** argv) {
+int main(const int argc, char** argv) {
 
     if (argc != 2){
         std::cout << "Usage: " << argv[0] << " [matrix size]";
@@ -15,17 +14,18 @@ int main(int argc, char** argv) {
     }
 
     const size_t n = std::stoul(argv[1]);
-    std::vector matrix(n*n, 0.0);
-    initialize_diagonal(matrix.data(), n);
+	WavefrontMatrix matrix(n);
+    initialize_diagonal(matrix);
 
     const auto start = std::chrono::high_resolution_clock::now();
-    wavefrontComputation(matrix.data(), n);
+    wavefrontComputation(matrix);
     const auto end = std::chrono::high_resolution_clock::now();
-    std::cout << n << ";" << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << std::endl;
 
-    // std::string filename = "sequential_" + std::to_string(n) + ".txt";
-    // std::ofstream sequential_file(Config::OUTPUTS_DIRECTORY / filename);
-    // print_matrix(matrix.data(), n, sequential_file);
+    std::cout << n << ";" << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << std::endl;
+	std::cout << "A(0, n-1) = " << matrix(0, n - 1) << std::endl;
+
+    matrix.print();
+
 
     return 0;
 }
