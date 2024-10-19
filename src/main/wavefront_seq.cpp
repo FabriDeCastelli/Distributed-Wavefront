@@ -4,7 +4,7 @@
 
 #include <chrono>
 #include <iostream>
-#include "utils.hpp"
+#include "wavefront.hpp"
 
 int main(const int argc, char** argv) {
 
@@ -15,16 +15,20 @@ int main(const int argc, char** argv) {
 
     const size_t n = std::stoul(argv[1]);
 	WavefrontMatrix matrix(n);
-    initialize_diagonal(matrix);
+    matrix.initialize_diagonal();
 
     const auto start = std::chrono::high_resolution_clock::now();
-    wavefrontComputation(matrix);
+    matrix.wavefront_computation();
     const auto end = std::chrono::high_resolution_clock::now();
 
     std::cout << n << ";" << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << std::endl;
-	std::cout << "A(0, n-1) = " << matrix(0, n - 1) << std::endl;
+	std::cout << "A(0, n-1) = " << matrix.top_right() << std::endl;
 
-    matrix.print();
+    if (n <= 10)
+    {
+        // print only if the matrix is small
+        matrix.print();
+    }
 
 
     return 0;

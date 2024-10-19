@@ -9,12 +9,11 @@
 #include <unistd.h>
 #include <vector>
 #include <cmath>
-#include <unordered_map>
 
-#include "utils.hpp"
+#include "wavefront.hpp"
 
 
-int main(int argc, char** argv)
+ int main(int argc, char** argv)
 {
     if (argc < 2)
     {
@@ -43,25 +42,25 @@ int main(int argc, char** argv)
         return EXIT_FAILURE;
     }
 
-    std::vector matrix(n*n, 0.0);
-    initialize_diagonal(matrix.data(), n);
+    WavefrontMatrix matrix(n);
+    matrix.initialize_diagonal();
 
     MPI_Barrier(MPI_COMM_WORLD);
     const double start_time = MPI_Wtime();
 
     for (int k = 1; k < n - 1; ++k)
     {
+
         std::vector results(n - k, 0.0);
 
         const int elements_per_process = (n - k) / num_processes;
         const int remainder = (n - k) % num_processes;
-
         const int local_size = elements_per_process + (rank < remainder ? 1 : 0);
 
         std::vector recv_counts(num_processes, 0);
         std::vector displacements(num_processes, 0);
 
-        for (int p_rank = 0; p_rank < num_processes; p_rank++)
+        for (int p_rank = 0; p_rank < num_processes; ++p_rank)
         {
             recv_counts[p_rank] = elements_per_process + (p_rank < remainder ? 1 : 0);
             displacements[p_rank] = p_rank == 0 ? 0 : displacements[p_rank - 1] + recv_counts[p_rank - 1];
@@ -69,14 +68,10 @@ int main(int argc, char** argv)
 
         std::vector partial_results(local_size, 0.0);
 
-        const size_t start = local_size * rank;
+        const size_t start = displacements[rank];
         for (size_t m = start; m < start + local_size; ++m)
         {
-            for (int i = 0; i < k; ++i)
-            {
-                partial_results[m - start] += matrix[m * n + m + i] * matrix[(m + 1 + i) * n + m + k];
-            }
-            partial_results[m - start] = std::cbrt(partial_results[m - start]);
+            partial_results[m - start] = std::cbrt(dot_product(m, k, matrix));
         }
 
         MPI_Allgatherv(
@@ -92,13 +87,13 @@ int main(int argc, char** argv)
 
         for (int m = 0; m < n - k; ++m)
         {
-            matrix[m * n + m + k] = results[m];
+            matrix(m, m + k) = results[m];
+            matrix(m + k, m) = matrix(m, m + k);
         }
 
     }
 
-    for (int i = 0; i < n - 1; i++)
-        matrix[n - 1] += matrix[i] * matrix[(i + 1) * n + n - 1];
+    matrix(0, n - 1) = std::cbrt(dot_product(0, n - 1, matrix));
 
     const double time = (MPI_Wtime() - start_time) * 1000.0;
 
@@ -111,6 +106,13 @@ int main(int argc, char** argv)
         for (int i = 0; i < num_processes - 1; ++i)
             std::cout << running_times[i] << ",";
         std::cout << running_times[num_processes - 1] << std::endl;
+        std::cout << "A(0, n-1) = " << matrix.top_right() << std::endl;
+
+        if (n <= 10)
+        {
+            // print only if the matrix is small
+            matrix.print();
+        }
 
     }
 

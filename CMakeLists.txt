@@ -23,17 +23,17 @@ include_directories(${MPI_INCLUDE_PATH}, ./fastflow)
 
 add_executable(Sequential
         src/main/wavefront_seq.cpp
-        src/main/utils.hpp
+        src/main/wavefront.hpp
         src/main/config.hpp
 )
 add_executable(MPI_Collective
         src/main/wavefront_mpi_collective.cpp
-        src/main/utils.hpp
+        src/main/wavefront.hpp
         src/main/config.hpp
 )
 add_executable(Fastflow
         src/main/wavefront_fastflow.cpp
-        src/main/utils.hpp
+        src/main/wavefront.hpp
         src/main/config.hpp
 )
 

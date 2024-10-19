@@ -12,12 +12,13 @@
 #include <vector>
 #include "config.hpp"
 
+class WavefrontMatrix;
 
+double dot_product(size_t m, size_t k, WavefrontMatrix& matrix);
 
 /**
  * A class representing a matrix with the Wavefront computation pattern.
  *
- * @tparam T the type of the matrix elements
  * @tparam dim the dimension of the matrix
  */
 class WavefrontMatrix
@@ -36,7 +37,12 @@ public:
         delete[] data;
     }
 
-    double& operator()(const size_t y, const size_t x) const
+    double& operator()(const size_t y, const size_t x)
+    {
+        return data[y * dim + x];
+    }
+
+    double operator()(const size_t y, const size_t x) const
     {
         return data[y * dim + x];
     }
@@ -47,6 +53,9 @@ public:
         return dim;
     }
 
+    /**
+     * Prints the matrix to the standard output.
+     */
     void print() const
     {
         const size_t n = size();
@@ -55,26 +64,43 @@ public:
             {
                 constexpr int width = 10;
                 std::cout << std::setw(width) << std::fixed << std::setprecision(2)
-                          << data[i * n + j] << " ";
+                          << (*this)(i, j) << " ";
             }
             std::cout << std::endl;
         }
     }
-};
 
-
-/**
- * Initializes the diagonal of the matrix. The diagonal elements are initialized with the value (i + 1) / n.
- *
- * @param matrix the pointer to the matrix, stored as a contiguous 1d vector of dimension n x n
- */
-
-inline void initialize_diagonal(WavefrontMatrix &matrix) {
-    const size_t dim = matrix.size();
-    for (size_t i = 0; i < dim; ++i) {
-        matrix(i, i) = static_cast<double>(1 + i) / static_cast<double>(dim);
+    /**
+     * Initializes the diagonal of the matrix. The diagonal elements are initialized with the value (i + 1) / n.
+     */
+    void initialize_diagonal()
+    {
+        const size_t dim = size();
+        for (size_t i = 0; i < dim; ++i) {
+            (*this)(i, i) = static_cast<double>(1 + i) / static_cast<double>(dim);
+        }
     }
-}
+
+    /**
+     * Performs the Wavefront computation pattern sequentially.
+     */
+    void wavefront_computation()
+    {
+        const size_t n = size();
+        for (size_t k = 1; k < n; ++k) {
+            for (size_t m = 0; m < n - k; ++m) {
+                (*this)(m, m + k) = std::cbrt(dot_product(m, k, *this));
+                (*this)(m + k, m) = (*this)(m, m + k);
+            }
+        }
+    }
+
+    double top_right()
+    {
+        return (*this)(0, size() - 1);
+    }
+
+};
 
 
 /**
@@ -85,31 +111,13 @@ inline void initialize_diagonal(WavefrontMatrix &matrix) {
  * @param matrix the input matrix
  * @return the dot product of the two vectors
  */
-__attribute__((always_inline)) inline double dotProduct(const size_t m, const size_t k, WavefrontMatrix& matrix) {
+__attribute__((always_inline)) inline double dot_product(const size_t m, const size_t k, WavefrontMatrix& matrix) {
     double res = 0.0;
     for (size_t i = 0; i < k; ++i) {
         res += matrix(m, m + k - i - 1) * matrix(m + k, m + i + 1);
     }
     return res;
 }
-
-/**
- * Performs the Wavefront computation pattern sequentially.
- *
- * @param matrix a contiguous n x n pointer, assuming row-major order and initialized with the diagonal values
- */
-inline void wavefrontComputation(WavefrontMatrix& matrix) {
-
-    const size_t n = matrix.size();
-    for (size_t k = 1; k < n; ++k) {
-        for (size_t m = 0; m < n - k; ++m) {
-            matrix(m, m + k) = std::cbrt(dotProduct(m, k, matrix));
-            matrix(m + k, m) = matrix(m, m + k);
-        }
-    }
-}
-
-
 
 #endif //UTILS_HPP
 
